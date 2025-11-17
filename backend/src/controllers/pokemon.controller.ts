@@ -14,19 +14,11 @@ export const getPokemonList = async (
   next: NextFunction
 ) => {
   try {
-    const offsetParam = req.query.offset as string | undefined;
-    const limitParam = req.query.limit as string | undefined;
+    let offset = (req.query.offset as number | undefined) ?? 0;
+    let limit = (req.query.limit as number | undefined) ?? DEFAULT_LIMIT;
 
-    let offset = offsetParam ? Number(offsetParam) : 0;
-    let limit = limitParam ? Number(limitParam) : DEFAULT_LIMIT;
-
-    if (!Number.isFinite(offset) || offset < 0) {
-      offset = 0;
-    }
-
-    if (!Number.isFinite(limit) || limit <= 0) {
-      limit = DEFAULT_LIMIT;
-    }
+    if (offset < 0) offset = 0;
+    if (limit <= 0) limit = DEFAULT_LIMIT;
 
     if (offset >= MAX_POKEMON) {
       return res.json({
@@ -65,10 +57,7 @@ export const getPokemonDetails = async (
   next: NextFunction
 ) => {
   try {
-    const id = Number(req.params.id);
-    if (Number.isNaN(id) || id <= 0) {
-      return res.status(400).json({ message: "Invalid pokemon id" });
-    }
+    const id = req.params.id as unknown as number;
 
     const data = await pokemonService.getPokemonDetails(id);
     res.json({
