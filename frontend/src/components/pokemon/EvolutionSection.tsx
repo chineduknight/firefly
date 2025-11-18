@@ -26,7 +26,6 @@ const EvolutionSection = ({
           <WrapItem key={evo.id}>
             <Tag.Root
               as="button"
-              type="button"
               px={3}
               py={1}
               borderRadius="full"
