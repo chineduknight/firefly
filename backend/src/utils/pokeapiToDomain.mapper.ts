@@ -49,6 +49,20 @@ export const mapPokemonListResponse = (
     },
   };
 };
+export const mapPokemonListItems = (
+  apiList: PokeApiListResponse,
+  favoriteIds: number[]
+): PokemonListItem[] => {
+  return apiList.results.map((pokemon) => {
+    const id = extractIdFromUrl(pokemon.url);
+    return {
+      id,
+      name: pokemon.name,
+      spriteUrl: buildSpriteUrl(id),
+      isFavorite: favoriteIds.includes(id),
+    };
+  });
+};
 
 export const mapPokemonDetails = (
   apiPokemon: PokeApiPokemonResponse,

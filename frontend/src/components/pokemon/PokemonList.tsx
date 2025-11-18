@@ -3,13 +3,13 @@ import type { PokemonListItem as PokemonListItemType } from "../../types/pokemon
 import InfiniteScrollSentinel from "./InfiniteScrollSentinel";
 import EmptyState from "../common/EmptyState";
 import PokemonCard from "./PokemonCard";
+import { usePokemonUiStore } from "../../state/pokemonUiStore";
 
 interface PokemonListProps {
   items: PokemonListItemType[];
   onSelect: (id: number) => void;
   onLoadMore: () => void;
   hasMore: boolean;
-  showFavoritesOnly: boolean;
   hasSearchTerm: boolean;
 }
 
@@ -18,9 +18,9 @@ const PokemonList = ({
   onSelect,
   onLoadMore,
   hasMore,
-  showFavoritesOnly,
   hasSearchTerm,
 }: PokemonListProps) => {
+  const showFavoritesOnly = usePokemonUiStore((s) => s.showFavoritesOnly);
   if (items.length === 0) {
     return (
       <EmptyState message="No Pokémon found. Try adjusting your filters." />

@@ -8,6 +8,7 @@ import {
 import {
   mapEvolutionChain,
   mapPokemonDetails,
+  mapPokemonListItems,
   mapPokemonListResponse,
 } from "../utils/pokeapiToDomain.mapper";
 import { PokemonDetails, PokemonListResponse } from "../models/pokemon.types";
@@ -17,6 +18,7 @@ const MAX_POKEMON = config.maxPokemon;
 interface GetPokemonListParams {
   offset: number;
   limit: number;
+  search?: string;
 }
 export class PokemonService {
   constructor(private readonly favoritesRepo: FavoritesRepository) {}
@@ -24,12 +26,40 @@ export class PokemonService {
   async getPokemonList(
     params: GetPokemonListParams
   ): Promise<PokemonListResponse> {
-    const { offset, limit } = params;
+    const { offset, limit, search } = params;
 
-    const [apiList, favoriteIds] = await Promise.all([
-      fetchPokemonList({ offset, limit }),
-      this.favoritesRepo.getIds(),
-    ]);
+    const favoriteIds = await this.favoritesRepo.getIds();
+
+    if (search) {
+      const apiList = await fetchPokemonList({ offset: 0, limit: MAX_POKEMON });
+
+      const allItems = mapPokemonListItems(apiList, favoriteIds); // returns PokemonListItem[]
+
+      const term = search.toLowerCase();
+      const filtered = allItems.filter((item) =>
+        item.name.toLowerCase().includes(term)
+      );
+
+      const total = filtered.length;
+
+      const pagedItems = filtered.slice(offset, offset + limit);
+
+      const hasNextPage = offset + limit < total;
+      const nextOffset = hasNextPage ? offset + limit : null;
+
+      return {
+        items: pagedItems,
+        total,
+        page: {
+          offset,
+          limit,
+          hasNextPage,
+          nextOffset,
+        },
+      };
+    }
+
+    const apiList = await fetchPokemonList({ offset, limit });
 
     return mapPokemonListResponse(apiList, favoriteIds, {
       offset,

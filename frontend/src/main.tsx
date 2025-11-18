@@ -6,6 +6,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { system } from "./theme/theme.ts";
+import ErrorBoundary from "./components/common/ErrorBoundary.tsx";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -20,7 +21,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ChakraProvider value={system}>
-        <App />
+        <ErrorBoundary fallbackMessage="Please refresh or try again later.">
+          <App />
+        </ErrorBoundary>
       </ChakraProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

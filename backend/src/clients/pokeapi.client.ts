@@ -1,5 +1,8 @@
 import axios from "axios";
 import { config } from "../config/env";
+import { globalCache } from "../utils/cache";
+import { withPokeApiResilience } from "../utils/resilience";
+const CACHE_TTL_MS = 5 * 60 * 1000;
 export interface EvolutionChainLink {
   species: {
     name: string;
@@ -50,33 +53,71 @@ export const fetchPokemonList = async (params: {
   limit: number;
 }): Promise<PokeApiListResponse> => {
   const { offset, limit } = params;
+  const cacheKey = `pokemon:list:${offset}:${limit}`;
 
-  const response = await api.get<PokeApiListResponse>("/pokemon", {
-    params: { limit, offset },
+  const cached = globalCache.get<PokeApiListResponse>(cacheKey);
+  if (cached) return cached;
+
+  const data = await withPokeApiResilience(async () => {
+    const response = await api.get<PokeApiListResponse>("/pokemon", {
+      params: { limit, offset },
+    });
+    return response.data;
   });
 
-  return response.data;
+  globalCache.set(cacheKey, data, CACHE_TTL_MS);
+  return data;
 };
 
 export const fetchPokemonDetails = async (
   id: number
 ): Promise<PokeApiPokemonResponse> => {
-  const response = await api.get<PokeApiPokemonResponse>(`/pokemon/${id}`);
-  return response.data;
+  const cacheKey = `pokemon:details:${id}`;
+
+  const cached = globalCache.get<PokeApiPokemonResponse>(cacheKey);
+  if (cached) return cached;
+
+  const data = await withPokeApiResilience(async () => {
+    const response = await api.get<PokeApiPokemonResponse>(`/pokemon/${id}`);
+    return response.data;
+  });
+
+  globalCache.set(cacheKey, data, CACHE_TTL_MS);
+  return data;
 };
 
 export const fetchPokemonSpecies = async (
   id: number
 ): Promise<PokeApiSpeciesResponse> => {
-  const response = await api.get<PokeApiSpeciesResponse>(
-    `/pokemon-species/${id}`
-  );
-  return response.data;
+  const cacheKey = `pokemon:species:${id}`;
+
+  const cached = globalCache.get<PokeApiSpeciesResponse>(cacheKey);
+  if (cached) return cached;
+
+  const data = await withPokeApiResilience(async () => {
+    const response = await api.get<PokeApiSpeciesResponse>(
+      `/pokemon-species/${id}`
+    );
+    return response.data;
+  });
+
+  globalCache.set(cacheKey, data, CACHE_TTL_MS);
+  return data;
 };
 
 export const fetchEvolutionChain = async (
   url: string
 ): Promise<PokeApiEvolutionChainResponse> => {
-  const response = await axios.get<PokeApiEvolutionChainResponse>(url);
-  return response.data;
+  const cacheKey = `pokemon:evo:${url}`;
+
+  const cached = globalCache.get<PokeApiEvolutionChainResponse>(cacheKey);
+  if (cached) return cached;
+
+  const data = await withPokeApiResilience(async () => {
+    const response = await axios.get<PokeApiEvolutionChainResponse>(url);
+    return response.data;
+  });
+
+  globalCache.set(cacheKey, data, CACHE_TTL_MS);
+  return data;
 };

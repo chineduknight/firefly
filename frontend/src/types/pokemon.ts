@@ -37,7 +37,4 @@ export interface FavoritePokemon {
 
 export interface FavoritePokemonPayload {
   pokemonId: number;
-  name: string;
-  spriteUrl: string;
-  types: string[];
 }

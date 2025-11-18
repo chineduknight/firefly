@@ -8,14 +8,29 @@ const pokemonService = new PokemonService(favoritesRepo);
 
 const MAX_POKEMON = config.maxPokemon;
 const DEFAULT_LIMIT = config.defaultLimit;
+
+const parseNumericQuery = (value: unknown): number | undefined => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
+};
+
 export const getPokemonList = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    let offset = (req.query.offset as number | undefined) ?? 0;
-    let limit = (req.query.limit as number | undefined) ?? DEFAULT_LIMIT;
+    let offset = parseNumericQuery(req.query.offset) ?? 0;
+    let limit = parseNumericQuery(req.query.limit) ?? DEFAULT_LIMIT;
+
+    const rawSearch = (req.query.search as string | undefined) ?? "";
+    const search = rawSearch.trim() || undefined;
 
     if (offset < 0) offset = 0;
     if (limit <= 0) limit = DEFAULT_LIMIT;
@@ -40,7 +55,7 @@ export const getPokemonList = async (
       limit = MAX_POKEMON - offset;
     }
 
-    const data = await pokemonService.getPokemonList({ offset, limit });
+    const data = await pokemonService.getPokemonList({ offset, limit, search });
 
     res.json({
       success: true,

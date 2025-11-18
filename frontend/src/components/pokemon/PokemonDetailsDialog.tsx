@@ -17,23 +17,12 @@ import {
 } from "@chakra-ui/react";
 import { FaStar } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-
-import type { PokemonDetails as PokemonDetailsType } from "../../types/pokemon";
 import Loader from "../common/Loader";
 import ErrorState from "../common/ErrorState";
 import EvolutionSection from "./EvolutionSection";
-
-interface PokemonDetailsProps {
-  isOpen: boolean;
-  onClose: () => void;
-  pokemon: PokemonDetailsType | undefined;
-  isLoading: boolean;
-  isError: boolean;
-  errorMessage: string | null;
-  onToggleFavorite: () => void;
-  isUpdatingFavorite: boolean;
-  onSelectPokemon: (id: number) => void;
-}
+import { useFavoriteActions } from "../../hooks/useFavoriteActions";
+import { usePokemonDetails } from "../../hooks/usePokemonDetails";
+import { usePokemonUiStore } from "../../state/pokemonUiStore";
 
 const Section = ({ title, items }: { title: string; items: string[] }) => (
   <Box>
@@ -76,20 +65,26 @@ const EmptyState = () => (
     <Text color="gray.500">Select a Pokémon to see details.</Text>
   </Box>
 );
+
 const MotionBox = motion.create(Box);
 
-const PokemonDetailsDialog = ({
-  isOpen,
-  onClose,
-  pokemon,
-  isLoading,
-  isError,
-  errorMessage,
-  onToggleFavorite,
-  isUpdatingFavorite,
-  onSelectPokemon,
-}: PokemonDetailsProps) => {
+const PokemonDetailsDialog = () => {
+  const selectedPokemonId = usePokemonUiStore((s) => s.selectedPokemonId);
+  const isDetailsOpen = usePokemonUiStore((s) => s.isDetailsOpen);
+  const closeDetails = usePokemonUiStore((s) => s.closeDetails);
+  const setSelectedPokemonId = usePokemonUiStore((s) => s.setSelectedPokemonId);
+
+  const {
+    data: pokemon,
+    isLoading,
+    isError,
+    errorMessage,
+  } = usePokemonDetails(selectedPokemonId);
+
   const showEmpty = !isLoading && !isError && !pokemon;
+
+  const { addFavorite, removeFavorite, isAdding, isRemoving } =
+    useFavoriteActions();
 
   const name = pokemon?.name ?? "";
   const spriteUrl = pokemon?.spriteUrl ?? "";
@@ -97,8 +92,14 @@ const PokemonDetailsDialog = ({
   const abilities = pokemon?.abilities ?? [];
   const evolutions = pokemon?.evolutions ?? [];
   const isFavorite = Boolean(pokemon?.isFavorite);
+
   return (
-    <Dialog.Root open={isOpen} onOpenChange={(e) => !e.open && onClose()}>
+    <Dialog.Root
+      open={isDetailsOpen}
+      onOpenChange={(e) => {
+        if (!e.open) closeDetails();
+      }}
+    >
       <Portal>
         <Dialog.Backdrop />
 
@@ -134,8 +135,14 @@ const PokemonDetailsDialog = ({
                     size="sm"
                     variant={isFavorite ? "solid" : "outline"}
                     colorPalette="yellow"
-                    loading={isUpdatingFavorite}
-                    onClick={onToggleFavorite}
+                    loading={isAdding || isRemoving}
+                    onClick={() => {
+                      if (isFavorite) {
+                        removeFavorite(pokemon.id);
+                      } else {
+                        addFavorite({ pokemonId: pokemon.id });
+                      }
+                    }}
                     display="inline-flex"
                     alignItems="center"
                     gap={2}
@@ -151,7 +158,13 @@ const PokemonDetailsDialog = ({
             </Dialog.Header>
 
             <Dialog.CloseTrigger asChild>
-              <CloseButton size="sm" position="absolute" top="4" right="4" />
+              <CloseButton
+                size="sm"
+                position="absolute"
+                top="4"
+                right="4"
+                aria-label="Close Pokémon details"
+              />
             </Dialog.CloseTrigger>
 
             <Dialog.Body pt={4}>
@@ -206,7 +219,9 @@ const PokemonDetailsDialog = ({
                       <Section title="Abilities" items={abilities} />
                       <EvolutionSection
                         evolutions={evolutions}
-                        onSelectPokemon={onSelectPokemon}
+                        onSelectPokemon={(id) => {
+                          setSelectedPokemonId(id);
+                        }}
                       />
                     </Flex>
                   </MotionBox>
