@@ -9,6 +9,7 @@ const pokemonService = new PokemonService(favoritesRepo);
 const MAX_POKEMON = config.maxPokemon;
 const DEFAULT_LIMIT = config.defaultLimit;
 
+// This function ensures that query parameters are parsed correctly as numbers
 const parseNumericQuery = (value: unknown): number | undefined => {
   if (typeof value === "number" && Number.isFinite(value)) {
     return value;

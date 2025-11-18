@@ -6,11 +6,14 @@ const DEFAULT_LIMIT = 30;
 export const PokemonApi = {
   getPokemonList: async (
     offset = 0,
-    limit = DEFAULT_LIMIT
+    limit = DEFAULT_LIMIT,
+    search = ""
   ): Promise<PokemonListResponse> => {
-    return http.get<PokemonListResponse>(
-      `/pokemon?offset=${offset}&limit=${limit}`
-    );
+    const params: Record<string, string | number> = { offset, limit };
+    if (search && search.trim()) {
+      params.search = search.trim();
+    }
+    return http.get<PokemonListResponse>(`/pokemon`, { params });
   },
 
   getPokemonDetails: async (id: number): Promise<PokemonDetails> => {

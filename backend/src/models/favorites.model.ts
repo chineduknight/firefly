@@ -32,8 +32,6 @@ const favoritePokemonSchema = new Schema<FavoritePokemonDoc>(
   }
 );
 
-favoritePokemonSchema.index({ pokemonId: 1 }, { unique: true });
-
 export const FavoritePokemonModel = model<FavoritePokemonDoc>(
   "FavoritePokemon",
   favoritePokemonSchema

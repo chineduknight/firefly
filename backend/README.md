@@ -35,6 +35,17 @@ src/
 - Consistent API response envelope
 - Recursive evolution chain parsing with multi-branch support
 
+## ⚙️ Environment Variables
+
+Create a `.env` file from `.env.example`:
+
+## 🏃 Running the Backend
+
+```
+yarn install
+yarn dev
+```
+
 ## 🔌 API Endpoints
 
 ### GET /api/pokemon?limit=150
@@ -86,23 +97,6 @@ name: string
 spriteUrl: string
 types: string[]
 createdAt / updatedAt
-```
-
-## ⚙️ Environment Variables
-
-Create `.env`:
-
-```
-PORT=4000
-MONGO_URI=mongodb://localhost:27017/firefly_pokedex
-POKEAPI_BASE_URL=https://pokeapi.co/api/v2
-```
-
-## 🏃 Running the Backend
-
-```
-yarn install
-yarn dev
 ```
 
 ## 🧪 Manual Testing
