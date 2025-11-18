@@ -146,6 +146,12 @@ const PokemonDetailsDialog = () => {
                     display="inline-flex"
                     alignItems="center"
                     gap={2}
+                    aria-pressed={isFavorite}
+                    aria-label={
+                      isFavorite
+                        ? "Remove Pokémon from favorites"
+                        : "Add Pokémon to favorites"
+                    }
                   >
                     <Icon
                       as={FaStar}

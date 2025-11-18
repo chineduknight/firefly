@@ -41,7 +41,7 @@ const InfiniteScrollSentinel = ({
   }
 
   return (
-    <Box ref={ref} py={4} textAlign="center">
+    <Box ref={ref} width="100%" py={4} textAlign="center">
       <Spinner size="sm" />
     </Box>
   );

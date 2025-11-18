@@ -25,6 +25,8 @@ const EvolutionSection = ({
         {evolutions.map((evo) => (
           <WrapItem key={evo.id}>
             <Tag.Root
+              as="button"
+              type="button"
               px={3}
               py={1}
               borderRadius="full"
@@ -36,6 +38,7 @@ const EvolutionSection = ({
                 transform: "translateY(-1px)",
               }}
               onClick={() => onSelectPokemon(evo.id)}
+              aria-label={`View details for ${evo.name}`}
             >
               <TagLabel textTransform="capitalize">{evo.name}</TagLabel>
             </Tag.Root>

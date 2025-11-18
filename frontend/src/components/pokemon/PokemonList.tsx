@@ -29,7 +29,7 @@ const PokemonList = ({
 
   return (
     <Flex
-      maxH="70vh"
+      maxH="85vh"
       wrap="wrap"
       justify="center"
       gap="20px"

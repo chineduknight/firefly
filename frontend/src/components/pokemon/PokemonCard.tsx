@@ -102,7 +102,7 @@ const PokemonCard = (props: PokemonListItemProps) => {
         backgroundRepeat="no-repeat"
         backgroundAttachment="scroll"
       >
-        <Image w="192px" src={imageURL} />
+        <Image w="192px" src={imageURL} alt={name} />
       </Box>
 
       <Box
