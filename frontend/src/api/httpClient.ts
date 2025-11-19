@@ -4,7 +4,6 @@ import type { ApiResponse } from "../types/api";
 const baseURL = (import.meta as any).env?.VITE_API_BASE_URL ?? "";
 const client = axios.create({
   baseURL,
-  timeout: 10000,
 });
 
 const unwrap = <T>(responseData: ApiResponse<T>): T => {
