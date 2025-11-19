@@ -62,8 +62,16 @@ export const getPokemonList = async (
       success: true,
       data,
     });
-  } catch (error) {
-    next(error);
+  } catch (err: any) {
+    if (err instanceof Error && err.message.includes("circuit open")) {
+      return res.status(503).json({
+        success: false,
+        message:
+          "Upstream Pokémon provider is temporarily unavailable. Please try again shortly.",
+      });
+    }
+
+    return next(err);
   }
 };
 

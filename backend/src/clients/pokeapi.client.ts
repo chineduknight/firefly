@@ -46,8 +46,11 @@ export interface PokeApiSpeciesResponse {
 
 const api = axios.create({
   baseURL: config.pokeApiBaseUrl,
+  headers: {
+    "Cache-Control": "no-cache",
+  },
 });
-
+const getCacheBust = () => Math.floor(Date.now() / 60000);
 export const fetchPokemonList = async (params: {
   offset: number;
   limit: number;
@@ -60,7 +63,7 @@ export const fetchPokemonList = async (params: {
 
   const data = await withPokeApiResilience(async () => {
     const response = await api.get<PokeApiListResponse>("/pokemon", {
-      params: { limit, offset },
+      params: { limit, offset, cb: getCacheBust() },
     });
     return response.data;
   });
@@ -78,7 +81,9 @@ export const fetchPokemonDetails = async (
   if (cached) return cached;
 
   const data = await withPokeApiResilience(async () => {
-    const response = await api.get<PokeApiPokemonResponse>(`/pokemon/${id}`);
+    const response = await api.get<PokeApiPokemonResponse>(`/pokemon/${id}`, {
+      params: { cb: getCacheBust() },
+    });
     return response.data;
   });
 
